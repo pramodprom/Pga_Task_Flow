@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>{% block title %}TaskFlow{% endblock %}</title>
+  <link rel="stylesheet" href="{% static 'home.css' %}">
+</head>
+<body>
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div>
+      <h2>TaskFlow</h2>
+      <a href="{% url 'board' %}">📋 Board</a>
+      <a href="{% url 'task_admin' %}">⚙️ Manage Tasks</a>
+      <a href="{% url 'analytics_dashboard' %}">📊 Analytics</a>
+    </div>
+    <button class="dark-mode-btn">🌙 Dark Mode</button>
+  </div>
+
+  <!-- Page Content -->
+  <div class="board-container">
+    {% block content %}{% endblock %}
+  </div>
+
+  <script src="{% static 'main.js' %}"></script>
+</body>
+</html>

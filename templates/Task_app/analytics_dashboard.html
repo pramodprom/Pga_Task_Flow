@@ -1,0 +1,118 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}TaskManagement{% endblock %}
+{% block content %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'analytics.css' %}">
+{% endblock %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<!-- Main Dashboard -->
+<div class="main-content">
+  <h1>Analytics Dashboard</h1>
+  <p>Track your team's progress and task completion metrics</p>
+
+  <!-- Top Summary Cards -->
+  <div class="grid">
+    <div class="card">
+      <h2>Total Tasks</h2>
+      <div class="value">{{ total_tasks }}</div>
+      <span class="badge blue">Active Project</span>
+    </div>
+    <div class="card">
+      <h2>Completion Rate</h2>
+      <div class="value">{{ completion_rate }}%</div>
+      <span class="badge gray">Progress</span>
+    </div>
+    <div class="card">
+      <h2>Overdue Tasks</h2>
+      <div class="value" style="color:red">{{ overdue_count }}</div>
+      <span class="badge red">Needs Attention</span>
+    </div>
+    <div class="card">
+      <h2>Team Members</h2>
+      <div class="value">{{ team_members }}</div>
+      <span class="badge blue">Active Contributors</span>
+    </div>
+  </div>
+
+  <!-- Charts Section -->
+  <div class="charts">
+    <div class="chart-card">
+      <h2>Task Status Distribution</h2>
+      <canvas id="statusChart"></canvas>
+    </div>
+    <div class="chart-card">
+      <h2>Tasks by Team Member</h2>
+      <canvas id="teamChart"></canvas>
+    </div>
+  </div>
+
+  <!-- Detailed Breakdown -->
+  <h2>Detailed Status Breakdown</h2>
+  <div class="status-grid">
+    <div class="status-box">
+      <h2>{{ todo_count }}</h2>
+      <p>Todo<br>{{ todo_count|floatformat:1 }} of total</p>
+    </div>
+    <div class="status-box">
+      <h2>{{ in_progress_count }}</h2>
+      <p>In Progress<br>{{ in_progress_count|floatformat:1 }} of total</p>
+    </div>
+    <div class="status-box">
+      <h2>{{ review_count }}</h2>
+      <p>Review<br>{{ review_count|floatformat:1 }} of total</p>
+    </div>
+    <div class="status-box">
+      <h2>{{ done_count }}</h2>
+      <p>Done<br>{{ done_count|floatformat:1 }} of total</p>
+    </div>
+  </div>
+</div>
+
+<!-- Scripts -->
+<script>
+  // Dark Mode Toggle
+  const body = document.body;
+  const darkModeBtn = document.querySelector('.dark-mode-btn');
+  if(localStorage.getItem('darkMode') === 'true') body.classList.add('dark-mode');
+  darkModeBtn.addEventListener('click', () => {
+    body.classList.toggle('dark-mode');
+    localStorage.setItem('darkMode', body.classList.contains('dark-mode'));
+  });
+
+  // Pie Chart
+  const ctx1 = document.getElementById('statusChart');
+  new Chart(ctx1, {
+    type: 'pie',
+    data: {
+      labels: [
+        'Todo: {{ todo_count }}',
+        'In Progress: {{ in_progress_count }}',
+        'Review: {{ review_count }}',
+        'Done: {{ done_count }}'
+      ],
+      datasets: [{
+        data: [{{ todo_count }}, {{ in_progress_count }}, {{ review_count }}, {{ done_count }}],
+        backgroundColor: ['#6b7280', '#06b6d4', '#3b82f6', '#10b981'],
+      }]
+    },
+    options: { responsive: true, maintainAspectRatio: true, aspectRatio: 2.0 }
+  });
+
+  // Bar Chart
+  const ctx2 = document.getElementById('teamChart');
+  new Chart(ctx2, {
+    type: 'bar',
+    data: {
+      labels: [{% for member, count in tasks_by_member.items %}'{{ member }}',{% endfor %}],
+      datasets: [{
+        label: 'Tasks',
+        data: [{% for member, count in tasks_by_member.items %}{{ count }},{% endfor %}],
+        backgroundColor: '#3b82f6'
+      }]
+    },
+    options: { responsive: true, scales: { y: { beginAtZero: true } } }
+  });
+</script>
+{% endblock %}
